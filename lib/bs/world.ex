@@ -54,26 +54,35 @@ defmodule Bs.World do
     world
   end
 
-  def rand_unoccupied_space(%{width: w, height: h} = world) when w > 0 and h > 0 do
+  def get_occupied_spaces(world, buffer) do
     spaces = Stream.flat_map(world.snakes, & &1.coords)
     spaces = Stream.concat(spaces, world.food)
-    spaces = Enum.into(spaces, MapSet.new())
-    width = world.width - 1
-    height = world.height - 1
-
-    stream =
-      Stream.flat_map(0..width, fn x ->
-        Stream.flat_map(0..height, fn y -> [p(x, y)] end)
+    spaces = Stream.flat_map(spaces, fn op ->
+      Stream.flat_map(-buffer..buffer*2+1, fn y ->
+        Stream.flat_map(-buffer..buffer*2+1, fn x ->
+          [p(op.x+x, op.y+y)]
+        end)
       end)
+    end)
+    spaces = Enum.into(spaces, MapSet.new())
+    spaces
+  end
 
-    stream = Stream.filter(stream, fn p -> !MapSet.member?(spaces, p) end)
+  def rand_unoccupied_space(%{width: w, height: h} = world, buffer \\ 0) when w > 0 and h > 0 do
+    all =
+      Stream.flat_map(0..world.width - 1, fn x ->
+        Stream.flat_map(0..world.height - 1, fn y -> [p(x, y)] end)
+      end)
+    occupied = get_occupied_spaces(world, buffer)
+    available = Enum.to_list(
+        Stream.filter(all, fn p -> !MapSet.member?(occupied, p)
+      end)
+    )
 
-    open = Enum.to_list(stream)
-
-    if length(open) == 0 do
+    if length(available) == 0 do
       {:error, :empty_error}
     else
-      {:ok, Enum.random(open)}
+      {:ok, Enum.random(available)}
     end
   end
 
