@@ -75,13 +75,17 @@ defmodule Bs.World do
   defp get_occupied_spaces(world, buffer) do
     spaces = Stream.flat_map(world.snakes, & &1.coords)
     spaces = Stream.concat(spaces, world.food)
-    spaces = Stream.flat_map(spaces, fn op ->
-      Stream.flat_map(-buffer..buffer*2+1, fn y ->
-        Stream.flat_map(-buffer..buffer*2+1, fn x ->
-          [p(op.x+x, op.y+y)]
+    spaces =
+      case buffer do
+        0 -> spaces
+        _ -> Stream.flat_map(spaces, fn op ->
+          Stream.flat_map(-buffer..buffer, fn y ->
+            Stream.flat_map(-buffer..buffer, fn x ->
+              [p(op.x+x, op.y+y)]
+            end)
+          end)
         end)
-      end)
-    end)
+      end
     spaces = Enum.into(spaces, MapSet.new())
     spaces
   end
