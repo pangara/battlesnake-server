@@ -56,8 +56,8 @@ defmodule Bs.World do
 
   def rand_unoccupied_space(%{width: w, height: h} = world, buffer \\ 0) when w > 0 and h > 0 do
     all =
-      Stream.flat_map(0..world.width - 1, fn x ->
-        Stream.flat_map(0..world.height - 1, fn y -> [p(x, y)] end)
+      Stream.flat_map(buffer..world.width - buffer - 1, fn x ->
+        Stream.flat_map(buffer..world.height - buffer - 1, fn y -> [p(x, y)] end)
       end)
     occupied = get_occupied_spaces(world, buffer)
     available = Enum.to_list(
