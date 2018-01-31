@@ -54,12 +54,20 @@ defmodule Bs.World do
     world
   end
 
-  def rand_unoccupied_space(%{width: w, height: h} = world, buffer \\ 0)
+  def rand_unoccupied_space(
+        %{width: w, height: h} = world,
+        buffer \\ 0,
+        only_odd_squares \\ false
+      )
       when w > 0 and h > 0 do
     all =
       Stream.flat_map(buffer..(world.width - buffer - 1), fn x ->
         Stream.flat_map(buffer..(world.height - buffer - 1), fn y ->
-          [p(x, y)]
+          if !only_odd_squares || rem(x + y, 2) == 0 do
+            [p(x, y)]
+          else
+            []
+          end
         end)
       end)
 
