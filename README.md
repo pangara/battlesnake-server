@@ -132,7 +132,7 @@ then on each turn a request to the `/move` endpoint.
 
 ```typescript
 interface StartRequest {
-  game_id: string;
+  game_id: number;
 }
 ```
 
@@ -201,7 +201,7 @@ type TailType =
 
 ```json
 {
-  "game_id": "b1dadee8-a112-4e0e-afa2-2845cd1f21aa"
+  "game_id": 1
 }
 ```
 
@@ -419,8 +419,8 @@ interface Point {
 You can run the official BattleSnake game server through Docker, allowing you to develop your snakes locally and whenever you want.
 
 ```sh
-docker pull battlesnake/battle_snake
-docker run -it -p 3000:3000 battlesnake/battle_snake
+docker pull sendwithus/battlesnake-server
+docker run -it -p 3000:3000 sendwithus/battlesnake-server
 ```
 
 You should be able to view the game server at <http://localhost:3000>.
