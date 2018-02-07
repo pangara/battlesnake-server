@@ -60,10 +60,12 @@ defmodule Bs.World do
         only_odd_squares \\ false
       )
       when w > 0 and h > 0 do
+    desired_odd_squares = Enum.random([0, 1])
+
     all =
       Stream.flat_map(buffer..(world.width - buffer - 1), fn x ->
         Stream.flat_map(buffer..(world.height - buffer - 1), fn y ->
-          if !only_odd_squares || rem(x + y, 2) == 0 do
+          if !only_odd_squares || rem(x + y, 2) == desired_odd_squares do
             [p(x, y)]
           else
             []
