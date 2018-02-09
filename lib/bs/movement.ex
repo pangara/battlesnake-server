@@ -96,7 +96,11 @@ defmodule Bs.Movement.Worker do
       response
       |> notify(id: world.game_id, snake_id: snake.id, tc: tc)
       |> Map.get(:body)
-      |> Poison.decode!()
+      |> Poison.decode()
+      |> case do
+        {:ok, j} -> j
+        {:error, _, _} -> %{}
+      end
 
     changeset = Move.changeset(%Move{}, params)
 

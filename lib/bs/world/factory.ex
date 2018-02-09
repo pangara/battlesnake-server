@@ -126,7 +126,11 @@ defmodule Bs.World.Factory.Worker do
       ]
     )
 
-    json = Poison.decode!(response.body)
+    json =
+      case Poison.decode(response.body) do
+        {:ok, j} -> j
+        {:error, _, _} -> %{}
+      end
 
     model = %Snake{url: url, id: id}
 
