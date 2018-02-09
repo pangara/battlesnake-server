@@ -12,7 +12,7 @@
   "license": "MIT",
   "main": "index.js",
   "name": "battle_snake",
-  "repository": "git@github.com:Dkendal/battle_snake.git",
+  "repository": "git@github.com:sendwithus/battlesnake-server.git",
   "scripts": {
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
