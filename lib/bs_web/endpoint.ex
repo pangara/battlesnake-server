@@ -46,6 +46,8 @@ defmodule BsWeb.Endpoint do
     signing_salt: "FYK+D7zm"
   )
 
+  plug(CORSPlug)
+
   plug(BsWeb.Router)
 
   def init(_type, config) do

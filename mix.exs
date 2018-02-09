@@ -85,6 +85,7 @@ defmodule Bs.Mixfile do
     [
       {:apex, "~> 1.2", only: [:dev]},
       {:confex, "~> 3.3.1"},
+      {:cors_plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},
       {:credo, "~> 0.8", only: [:dev, :text], runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
