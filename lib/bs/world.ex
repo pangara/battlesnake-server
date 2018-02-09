@@ -94,8 +94,7 @@ defmodule Bs.World do
           end)
       end
 
-    spaces = Enum.into(spaces, MapSet.new())
-    spaces
+    Enum.into(spaces, MapSet.new())
   end
 
   @doc "increase world.turn by 1"

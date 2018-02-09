@@ -457,11 +457,11 @@ and Elixir through [kiex](https://github.com/taylor/kiex).
 ```sh
 git clone git@github.com:sendwithus/battlesnake-server.git`
 cd battlesnake-server
-yarn install
 mix do local.hex --force, local.rebar
 mix do deps.get, deps.compile
 mix do ecto.create, ecto.migrate
-cd ./assets && npm install
+yarn install
+cd ./assets && yarn install
 mix phx.server
 ```
 
