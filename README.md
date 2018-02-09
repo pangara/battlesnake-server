@@ -456,7 +456,7 @@ and Elixir through [kiex](https://github.com/taylor/kiex).
 
 ```sh
 git clone git@github.com:sendwithus/battlesnake-server.git`
-cd battle_snake
+cd battlesnake-server
 
 mix do local.hex --force, local.rebar
 mix do deps.get, deps.compile
