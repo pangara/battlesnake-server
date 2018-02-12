@@ -2,6 +2,7 @@ alias Bs.Snake
 alias Bs.World
 alias Bs.Notification
 alias Bs.World.Factory.Worker
+alias Bs.Point
 
 defmodule Bs.World.Factory do
   @timeout 4900
@@ -82,19 +83,29 @@ defmodule Bs.World.Factory do
       data: %{}
     )
 
-    world = put_in(world.snakes, snakes)
-
     world = World.stock_food(world)
+    world = put_in(world.snakes, set_snake_coords(snakes, world, game))
+  end
 
-    update_in(world.snakes, fn snakes ->
-      for snake <- snakes do
-        {:ok, point} = World.rand_unoccupied_space(world, 1)
+  defp set_snake_coords(snakes, world, game) do
+    set_snake_coords(snakes, world, game, [])
+  end
 
-        coords = List.duplicate(point, game.snake_start_length)
+  defp set_snake_coords([head | tail], world, game, acc) do
+    {:ok, point} =
+      World.rand_unoccupied_space(
+        world,
+        1,
+        Enum.map(acc, &List.first(&1.coords))
+      )
 
-        put_in(snake.coords, coords)
-      end
-    end)
+    coords = List.duplicate(point, game.snake_start_length)
+    head = Map.put(head, :coords, coords)
+    set_snake_coords(tail, world, game, [head | acc])
+  end
+
+  defp set_snake_coords([], world, game, acc) do
+    acc
   end
 end
 
