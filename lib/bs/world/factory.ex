@@ -2,7 +2,6 @@ alias Bs.Snake
 alias Bs.World
 alias Bs.Notification
 alias Bs.World.Factory.Worker
-alias Bs.Point
 
 defmodule Bs.World.Factory do
   @timeout 4900
@@ -84,7 +83,7 @@ defmodule Bs.World.Factory do
     )
 
     world = World.stock_food(world)
-    world = put_in(world.snakes, set_snake_coords(snakes, world, game))
+    put_in(world.snakes, set_snake_coords(snakes, world, game))
   end
 
   defp set_snake_coords(snakes, world, game) do
@@ -104,7 +103,7 @@ defmodule Bs.World.Factory do
     set_snake_coords(tail, world, game, [head | acc])
   end
 
-  defp set_snake_coords([], world, game, acc) do
+  defp set_snake_coords([], _, _, acc) do
     acc
   end
 end

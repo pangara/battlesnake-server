@@ -79,7 +79,8 @@ defmodule Bs.World do
     end
   end
 
-  defp get_occupied_spaces(world, buffer, excluded_points \\ []) do
+  defp get_occupied_spaces(world, buffer, excluded_points) do
+    # this is actually probably empty because the field is captured without any data
     spaces =
       Stream.flat_map(world.snakes, & &1.coords)
       |> Stream.concat(world.food)
