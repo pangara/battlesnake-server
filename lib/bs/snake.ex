@@ -33,14 +33,13 @@ defmodule Bs.Snake do
       :color,
       :head_type,
       :head_url,
-      :name,
       :secondary_color,
       :tail_type,
       :taunt,
       :url
     ]
 
-    required = [:name]
+    required = []
 
     model
     |> cast(params, permitted)

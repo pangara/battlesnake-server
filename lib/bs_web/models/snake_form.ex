@@ -5,11 +5,12 @@ defmodule BsWeb.SnakeForm do
 
   embedded_schema do
     field(:url)
+    field(:name)
     field(:delete, :boolean, virtual: true)
   end
 
   def changeset(snake, params \\ %{}) do
     snake
-    |> cast(params, [:url, :delete])
+    |> cast(params, [:url, :name, :delete])
   end
 end
