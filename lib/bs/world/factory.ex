@@ -83,6 +83,7 @@ defmodule Bs.World.Factory do
     )
 
     world = World.stock_food(world)
+    IO.inspect("set snake coords")
     put_in(world.snakes, set_snake_coords(snakes, world, game))
   end
 

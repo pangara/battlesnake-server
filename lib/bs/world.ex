@@ -68,6 +68,7 @@ defmodule Bs.World do
       end)
 
     occupied = get_occupied_spaces(world, buffer, excluded_points)
+    IO.inspect(occupied)
 
     available =
       Enum.to_list(Stream.filter(all, fn p -> !MapSet.member?(occupied, p) end))

@@ -2,6 +2,7 @@ defmodule BsWeb.GameController do
   alias BsRepo.GameForm
 
   import Ecto.Query
+  import Ecto.Changeset
 
   use BsWeb, :controller
 
@@ -17,12 +18,34 @@ defmodule BsWeb.GameController do
   end
 
   def create(conn, %{"game_form" => params}) do
-    {:ok, game_form} =
+    changeset =
       %GameForm{}
       |> GameForm.changeset(params)
-      |> BsRepo.insert()
 
-    redirect(conn, to: game_path(conn, :edit, game_form))
+    case changeset.valid? do
+      true ->
+        {:ok, game_form} = BsRepo.insert(changeset)
+        redirect(conn, to: game_path(conn, :edit, game_form))
+
+      _ ->
+        msg =
+          traverse_errors(changeset, fn {msg, opts} ->
+            Enum.reduce(opts, msg, fn {key, value}, acc ->
+              String.replace(acc, "%{#{key}}", to_string(value))
+            end)
+          end)
+
+        msg =
+          case msg do
+            %{snakes: rest} ->
+              rest
+              |> Enum.flat_map(fn x -> Map.values(x) end)
+          end
+
+        conn
+        |> put_flash(:info, msg)
+        |> render("new.html", changeset: changeset)
+    end
   end
 
   def show(conn, %{"id" => id}) do
@@ -39,11 +62,32 @@ defmodule BsWeb.GameController do
   def update(conn, %{"id" => id, "game_form" => params}) do
     game_form = BsRepo.get!(GameForm, id)
 
-    game_form
-    |> GameForm.changeset(params)
-    |> BsRepo.update()
+    changeset = GameForm.changeset(game_form, params)
 
-    redirect(conn, to: game_path(conn, :edit, game_form))
+    case changeset.valid? do
+      true ->
+        {:ok, game_form} = BsRepo.update(changeset)
+        redirect(conn, to: game_path(conn, :edit, game_form))
+
+      _ ->
+        msg =
+          traverse_errors(changeset, fn {msg, opts} ->
+            Enum.reduce(opts, msg, fn {key, value}, acc ->
+              String.replace(acc, "%{#{key}}", to_string(value))
+            end)
+          end)
+
+        msg =
+          case msg do
+            %{snakes: rest} ->
+              rest
+              |> Enum.flat_map(fn x -> Map.values(x) end)
+          end
+
+        conn
+        |> put_flash(:info, msg)
+        |> render("edit.html", game: game_form, changeset: changeset)
+    end
   end
 
   def delete(conn, %{"id" => id}) do

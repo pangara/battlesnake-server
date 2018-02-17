@@ -1,6 +1,17 @@
 <section class="section-container">
   <h2>Edit game</h2>
 
+<%
+  info = get_flash(@conn, :info)
+  error = get_flash(@conn, :error)
+%>
+<%= if info do %>
+  <div class="alert alert-info" role="alert"><%= info %></div>
+<% end %>
+<%= if error do %>
+  <div class="alert alert-danger" role="alert"><%= error %></div>
+<% end %>
+
   <%= form_for @changeset, game_path(@conn, :update, @game), [method: :put], fn f -> %>
     <%= render "_form.html", form: f %>
     <%= submit "Update game" %>
