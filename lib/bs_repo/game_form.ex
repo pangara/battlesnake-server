@@ -21,6 +21,7 @@ defmodule BsRepo.GameForm do
     field(:game_mode, :string, default: @multiplayer)
     field(:recv_timeout, :integer, default: 200)
     field(:dec_health_points, :integer, default: 1)
+    field(:pin_tail, :boolean, default: false)
   end
 
   @required [
@@ -31,7 +32,8 @@ defmodule BsRepo.GameForm do
     :snake_start_length,
     :recv_timeout,
     :width,
-    :dec_health_points
+    :dec_health_points,
+    :pin_tail
   ]
 
   @permitted [
@@ -42,7 +44,8 @@ defmodule BsRepo.GameForm do
     :snake_start_length,
     :recv_timeout,
     :width,
-    :dec_health_points
+    :dec_health_points,
+    :pin_tail
   ]
 
   def changeset(game, params \\ %{}) do

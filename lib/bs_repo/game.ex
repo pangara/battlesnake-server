@@ -12,6 +12,7 @@ defmodule BsRepo.Game do
     field(:snakes, {:array, :string})
     field(:width, :integer, default: 20)
     field(:dec_health_points, :integer, default: 1)
+    field(:pin_tail, :boolean, default: false)
 
     timestamps()
   end
@@ -35,7 +36,8 @@ defmodule BsRepo.Game do
     :snake_start_length,
     :recv_timeout,
     :width,
-    :dec_health_points
+    :dec_health_points,
+    :pin_tail
   ]
 
   def changeset(model, params \\ %{}) do

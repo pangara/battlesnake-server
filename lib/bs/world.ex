@@ -25,6 +25,7 @@ defmodule Bs.World do
     field(:deaths, :any, default: [], virtual: true)
     field(:game_id, :any, default: 0, virtual: true)
     field(:dec_health_points, :any, default: 1, virtual: true)
+    field(:pin_tail, :any, default: false, virtual: true)
   end
 
   @doc """
@@ -194,7 +195,7 @@ defmodule Bs.World do
   def grew(world, snake) do
     head = hd(snake.coords)
 
-    if head in world.food do
+    if head in world.food || world.pin_tail do
       1
     else
       0

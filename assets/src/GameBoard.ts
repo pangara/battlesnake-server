@@ -1,6 +1,6 @@
-import {loadImage} from './images';
-import {add, sub, uniq} from './point';
-import * as P from './point';
+import { loadImage } from "./images";
+import { add, sub, uniq } from "./point";
+import * as P from "./point";
 
 const gutter = 0.1;
 const unit = 1 - gutter * 2;
@@ -24,7 +24,7 @@ function coords(snake: Snake): Point[] {
 }
 
 function clear(ctx: Ctx) {
-  const {width, height} = ctx.canvas;
+  const { width, height } = ctx.canvas;
   ctx.clearRect(0, 0, width, height);
 }
 
@@ -88,7 +88,7 @@ function drawSnakeBody(layer: Ctx, snake: Snake, prepare?: Function) {
 
     layer.lineWidth = unit;
 
-    layer.lineJoin = 'round';
+    layer.lineJoin = "round";
 
     layer.beginPath();
 
@@ -127,16 +127,16 @@ function drawImage(
 
     layer.translate(a[0], a[1]);
 
-    switch (v.join(' ')) {
-      case '0 -1':
+    switch (v.join(" ")) {
+      case "0 -1":
         layer.rotate(-Math.PI / 2);
         break;
 
-      case '0 1':
+      case "0 1":
         layer.rotate(Math.PI / 2);
         break;
 
-      case '-1 0':
+      case "-1 0":
         layer.scale(-1, 1);
         break;
     }
@@ -187,21 +187,23 @@ export class GameBoard {
     this.canvasses = [];
 
     const layer = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = (canvas.getContext('2d') as any) as Ctx;
-      canvas.classList.add('gameboard-canvas');
+      const canvas = document.createElement("canvas");
+      const ctx = (canvas.getContext("2d") as any) as Ctx;
+      canvas.classList.add("gameboard-canvas");
       this.canvasses.push(canvas);
       return ctx;
     };
 
     this.layers = {
       fg: layer(),
-      grid: layer(),
+      grid: layer()
     };
 
-    Object.values(this.layers).reverse().map(({canvas}, idx) => {
-      canvas.style.zIndex = idx;
-    });
+    Object.values(this.layers)
+      .reverse()
+      .map(({ canvas }, idx) => {
+        canvas.style.zIndex = idx;
+      });
 
     this.colorPallet = colorPallet;
 
@@ -217,7 +219,7 @@ export class GameBoard {
   }
 
   color(name: string): string {
-    return this.colorPallet.get(name) || 'pink';
+    return this.colorPallet.get(name) || "pink";
   }
 
   resize() {
@@ -252,7 +254,7 @@ export class GameBoard {
   }
 
   async draw(world: Board) {
-    const {grid, fg} = this.layers;
+    const { grid, fg } = this.layers;
     const sizeChanged = this.sizeChanged();
 
     if (sizeChanged) {
@@ -263,7 +265,7 @@ export class GameBoard {
       this.worldId = world.id;
 
       within(grid, () => {
-        grid.fillStyle = this.color('tile-color');
+        grid.fillStyle = this.color("tile-color");
         clear(grid);
         setCoordinateSystem(grid, world);
         drawGrid(grid, world.width, world.height);
@@ -274,7 +276,7 @@ export class GameBoard {
 
     // Draw food
     within(fg, () => {
-      fg.fillStyle = this.color('food-color');
+      fg.fillStyle = this.color("food-color");
       setCoordinateSystem(fg, world);
       fg.translate(0.5, 0.5);
       for (const food of world.food) {

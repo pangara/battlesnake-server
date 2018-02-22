@@ -15,7 +15,8 @@ defmodule Bs.World.Factory do
       snakes: [],
       width: game.width,
       game_form_id: id,
-      dec_health_points: game.dec_health_points
+      dec_health_points: game.dec_health_points,
+      pin_tail: game.pin_tail
     }
 
     data =
@@ -98,7 +99,13 @@ defmodule Bs.World.Factory do
         Enum.map(acc, &List.first(&1.coords))
       )
 
-    coords = List.duplicate(point, game.snake_start_length)
+    if world.pin_tail do
+      # only need head and tail when the tail is pinned.
+      coords = List.duplicate(point, 2)
+    else
+      coords = List.duplicate(point, game.snake_start_length)
+    end
+
     head = Map.put(head, :coords, coords)
     set_snake_coords(tail, world, game, [head | acc])
   end
