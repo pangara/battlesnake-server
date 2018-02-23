@@ -40,7 +40,7 @@ gridUnitString =
 
 gridPathOffset : Float
 gridPathOffset =
-    ((scale 1 / 2) + (margin / 2))
+    (scale 1 / 2) + (margin / 2)
 
 
 blockPos : Vec2 -> List (Attribute msg)
@@ -54,7 +54,7 @@ blockPos v =
 
 square : List (Attribute msg) -> Vec2 -> Svg msg
 square attrs point =
-    rect ((blockPos point) ++ attrs) []
+    rect (blockPos point ++ attrs) []
 
 
 circle_ : List (Attribute msg) -> Vec2 -> Svg msg
@@ -73,7 +73,7 @@ view : Bool -> Board -> Html.Styled.Html msg
 view showDead board =
     let
         snakeView_ =
-            snakeView showDead
+            snakeView showDead board.deadSnakes
 
         food =
             board.food
@@ -87,45 +87,50 @@ view showDead board =
         snakes =
             board.snakes
 
+        deadSnakes =
+            board.deadSnakes
+
         gridPattern =
-            "GridPattern" ++ (toString board.gameid)
+            "GridPattern" ++ toString board.gameid
 
         viewBox_ =
             [ 0, 0, scale (width_ + 1), scale (height_ + 1) ]
                 |> List.map toString
                 |> String.join " "
     in
-        svg [ viewBox viewBox_
-            , css
-                [ 1 |> Css.int |> Css.flexGrow, Css.padding ms1
-                , Css.maxHeight (Css.vh 90)
-                ]
+    svg
+        [ viewBox viewBox_
+        , css
+            [ 1 |> Css.int |> Css.flexGrow
+            , Css.padding ms1
+            , Css.maxHeight (Css.vh 90)
             ]
-            [ defs []
-                [ pattern
-                    [ id gridPattern
-                    , x "0"
-                    , y "0"
-                    , width (1.0 / toFloat width_ |> toString)
-                    , height (1.0 / toFloat height_ |> toString)
-                    ]
-                    [ square [ fill theme.tile.value ] (vec2 0 0) ]
+        ]
+        [ defs []
+            [ pattern
+                [ id gridPattern
+                , x "0"
+                , y "0"
+                , width (1.0 / toFloat width_ |> toString)
+                , height (1.0 / toFloat height_ |> toString)
                 ]
-            , rect
-                [ fill <| "url(#" ++ gridPattern ++ ")"
-                , width (width_ |> scale |> toString)
-                , height (height_ |> scale |> toString)
-                ]
-                []
-            , g
-                [ vec2 gridPathOffset gridPathOffset
-                    |> translate
-                    |> transform
-                , css [ Css.fill theme.food ]
-                ]
-                (List.map (circle_ []) food)
-            , g [] (List.concatMap (snakeView_) snakes)
+                [ square [ fill theme.tile.value ] (vec2 0 0) ]
             ]
+        , rect
+            [ fill <| "url(#" ++ gridPattern ++ ")"
+            , width (width_ |> scale |> toString)
+            , height (height_ |> scale |> toString)
+            ]
+            []
+        , g
+            [ vec2 gridPathOffset gridPathOffset
+                |> translate
+                |> transform
+            , css [ Css.fill theme.food ]
+            ]
+            (List.map (circle_ []) food)
+        , g [] (List.concatMap snakeView_ snakes)
+        ]
 
 
 type Acc
@@ -152,23 +157,44 @@ alignWithMargin : Term -> Vec2 -> Vec2
 alignWithMargin { dir } vec =
     dir
         |> V2.normalize
-        |> V2.scale (((margin / -52)))
+        |> V2.scale (margin / -52)
         |> add vec
 
 
-snakeView : Bool -> Snake -> List (Svg msg)
-snakeView showDead record =
+getSnakeId : DeadSnake -> String
+getSnakeId ds =
+    ds.id
+
+
+snakeView : Bool -> List DeadSnake -> Snake -> List (Svg msg)
+snakeView showDead deadSnakes record =
     let
         shouldRender =
             alive || showDead
 
+        deadSnakeIds =
+            Debug.log
+                "dead snakes"
+                (List.map getSnakeId deadSnakes)
+
+        snakeId =
+            Debug.log "record id" record.id
+
+        r =
+            Debug.log "record" record
+
         alive =
-            True
-            -- record.status == Alive
+            Debug.log "alive"
+                (not
+                    (List.member
+                        snakeId
+                        deadSnakeIds
+                    )
+                )
 
         coords =
             record.coords
-                |> List.foldl reduce (AccInit)
+                |> List.foldl reduce AccInit
 
         reduce : Vec2 -> Acc -> Acc
         reduce current acc =
@@ -187,14 +213,14 @@ snakeView showDead record =
                             end =
                                 term2 current pos
                         in
-                            Acc
-                                start
-                                end
-                                current
-                                pos
-                                [ alignWithMargin end current
-                                , alignWithMargin start pos
-                                ]
+                        Acc
+                            start
+                            end
+                            current
+                            pos
+                            [ alignWithMargin end current
+                            , alignWithMargin start pos
+                            ]
 
                 (Acc start end prev1 prev2 list) as acc ->
                     if current == prev1 then
@@ -208,9 +234,9 @@ snakeView showDead record =
                                 alignWithMargin end_ current
 
                             list_ =
-                                lastSegment :: prev1 :: (List.drop 1 list)
+                                lastSegment :: prev1 :: List.drop 1 list
                         in
-                            Acc start end_ current prev1 list_
+                        Acc start end_ current prev1 list_
 
         points_ =
             case coords of
@@ -241,30 +267,30 @@ snakeView showDead record =
                     text ""
 
         path x y =
-            ("/images/snake/" ++ x ++ "/" ++ y ++ ".svg#root")
+            "/images/snake/" ++ x ++ "/" ++ y ++ ".svg#root"
 
         embed transform_ part type_ { pos, dir } =
             let
                 center =
-                    (vec2 0.5 0.5)
+                    vec2 0.5 0.5
 
                 dir_ =
                     dir |> toTuple
             in
-                svg ((blockPos pos) ++ [ viewBox "0 0 1 1" ])
-                    [ g (transformIcon center dir_)
-                        [ Svg.title [] [ text (toString dir_) ]
-                        , use
-                            [ path part type_ |> xlinkHref
-                            , width "1"
-                            , height "1"
-                            , x "0"
-                            , y "0"
-                            , css [ Css.property "fill" record.color ]
-                            ]
-                            []
+            svg (blockPos pos ++ [ viewBox "0 0 1 1" ])
+                [ g (transformIcon center dir_)
+                    [ Svg.title [] [ text (toString dir_) ]
+                    , use
+                        [ path part type_ |> xlinkHref
+                        , width "1"
+                        , height "1"
+                        , x "0"
+                        , y "0"
+                        , css [ Css.property "fill" record.color ]
                         ]
+                        []
                     ]
+                ]
 
         icons =
             case coords of
@@ -272,51 +298,49 @@ snakeView showDead record =
                     []
 
                 AccFirst start ->
-                    [ start |> (embed "" "head" record.headType) ]
+                    [ start |> embed "" "head" record.headType ]
 
                 Acc start end _ _ _ ->
-                    [ start |> (embed "" "head" record.headType)
-                    , end |> (embed "" "tail" record.tailType)
+                    [ start |> embed "" "head" record.headType
+                    , end |> embed "" "tail" record.tailType
                     ]
     in
-        if shouldRender then
-            [ g
-                [ vec2 gridPathOffset gridPathOffset
-                    |> translate
-                    |> transform
-                ]
-                [ polyline_ ]
+    if shouldRender then
+        [ g
+            [ vec2 gridPathOffset gridPathOffset
+                |> translate
+                |> transform
             ]
-                ++ icons
-        else
-            []
+            [ polyline_ ]
+        ]
+            ++ icons
+    else
+        []
 
 
 rotate : a -> String
 rotate value =
-    ("rotate(" ++ (value |> toString) ++ ")")
+    "rotate(" ++ (value |> toString) ++ ")"
 
 
 rotate2 : a -> Vec2 -> String
 rotate2 value vec =
-    ("rotate("
-        ++ (toString value)
+    "rotate("
+        ++ toString value
         ++ " "
         ++ (vec |> getX |> toString)
         ++ ","
         ++ (vec |> getY |> toString)
         ++ ")"
-    )
 
 
 translate : Vec2 -> String
 translate vec =
-    ("translate("
+    "translate("
         ++ (vec |> getX |> toString)
         ++ ","
         ++ (vec |> getY |> toString)
         ++ ")"
-    )
 
 
 verticalFlip : String

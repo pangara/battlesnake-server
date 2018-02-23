@@ -20,11 +20,11 @@ type alias GameState =
 type alias Board =
     { turn : Int
     , snakes : List Snake
-    , deadSnakes : List Snake
+    , deadSnakes : List DeadSnake
     , gameid : Int
     , food : List Vec2
-    , width: Int
-    , height: Int
+    , width : Int
+    , height : Int
     }
 
 
@@ -71,6 +71,7 @@ type alias Death =
     { causes : List DeathCause
     }
 
+
 type SnakeStatus
     = Alive
     | Dead
@@ -78,7 +79,20 @@ type SnakeStatus
 
 
 type alias Snake =
-    { death : Maybe Death
+    { color : String
+    , coords : List Vec2
+    , health : Int
+    , id : String
+    , name : String
+    , taunt : Maybe String
+    , headUrl : String
+    , headType : String
+    , tailType : String
+    }
+
+
+type alias DeadSnake =
+    { death : Death
     , color : String
     , coords : List Vec2
     , health : Int

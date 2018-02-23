@@ -62,6 +62,25 @@ board { gameid } =
         ]
 
 
+toSnakes : List DeadSnake -> List Snake
+toSnakes deadSnakes =
+    List.map toSnake deadSnakes
+
+
+toSnake : DeadSnake -> Snake
+toSnake deadSnake =
+    { color = deadSnake.color
+    , coords = deadSnake.coords
+    , health = deadSnake.health
+    , id = deadSnake.id
+    , name = deadSnake.name
+    , taunt = deadSnake.taunt
+    , headUrl = deadSnake.headUrl
+    , headType = deadSnake.headType
+    , tailType = deadSnake.tailType
+    }
+
+
 sidebar : Model -> Html Msg
 sidebar model =
     let
@@ -104,7 +123,7 @@ sidebar model =
                     container []
                         (List.concat
                             [ List.map (snake True) board.snakes
-                            , List.map (snake False) board.deadSnakes
+                            , List.map (snake False) (toSnakes board.deadSnakes)
                             ]
                         )
     in
