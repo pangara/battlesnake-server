@@ -90,7 +90,6 @@ defmodule Bs.GameState do
       |> Death.reap()
       |> Map.update!(:world, &World.step/1)
 
-    IO.inspect(state)
     if done?(state), do: step_done(state), else: state
   end
 
