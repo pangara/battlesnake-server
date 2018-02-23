@@ -154,7 +154,10 @@ snake alive snake =
         healthbar =
             div
                 [ style healthbarStyle
-                , css [ Css.height ms_3, transition ]
+                , css
+                    [ Css.height (px 15)
+                    , transition
+                    ]
                 ]
                 []
 
