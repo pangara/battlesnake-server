@@ -111,8 +111,8 @@ sidebar model =
     column
         [ css
             [ padding ms1
+            , minWidth theme.sidebarWidth
             , justifyContent spaceBetween
-            , minWidth (px 320)
             , overflowWrap breakWord
             , sidebarTheme
             ]
@@ -198,10 +198,8 @@ snake alive snake =
             ]
         , div
             [ css
-                [ displayFlex
-                , justifyContent spaceBetween
-                , maxWidth (px 250)
-                , Css.height (px 20)
+                [ maxWidth theme.sidebarWidth
+                , whiteSpace Css.noWrap
                 , textOverflow ellipsis
                 , overflow Css.hidden
                 ]
