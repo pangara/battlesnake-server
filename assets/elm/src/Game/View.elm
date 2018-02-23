@@ -228,6 +228,9 @@ snake alive snake =
                 1
             else
                 0.5
+        taunt = case snake.taunt of
+                Nothing -> ""
+                Just val -> val
     in
         div
             [ css
@@ -246,8 +249,10 @@ snake alive snake =
                     , span [] [ text healthText ]
                     ]
                 , healthbar
-                ]
+                ],
+                text taunt
             ]
+            
 
 
 playPause : Model -> Html Msg
