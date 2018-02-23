@@ -14,7 +14,7 @@ import Types exposing (..)
 
 
 scale : number -> number
-scale x = 
+scale x =
     x * 100
 
 
@@ -82,7 +82,7 @@ view showDead board =
             board.height
 
         width_ =
-            board.width 
+            board.width
 
         snakes =
             board.snakes
@@ -95,7 +95,12 @@ view showDead board =
                 |> List.map toString
                 |> String.join " "
     in
-        svg [ viewBox viewBox_, css [ 1 |> Css.int |> Css.flexGrow, Css.padding ms1 ] ]
+        svg [ viewBox viewBox_
+            , css
+                [ 1 |> Css.int |> Css.flexGrow, Css.padding ms1
+                , Css.maxHeight (Css.vh 90)
+                ]
+            ]
             [ defs []
                 [ pattern
                     [ id gridPattern
