@@ -167,12 +167,18 @@ defmodule Bs.World do
       for snake <- snakes do
         increase = grew(world, snake)
 
-        if increase > 0 do
-          snake
-          |> Snake.reset_health_points()
-          |> Snake.grow(increase)
-        else
-          snake
+        cond do
+          increase > 0 ->
+            snake
+            |> Snake.reset_health_points()
+            |> Snake.grow(increase)
+
+          world.pin_tail ->
+            snake
+            |> Snake.grow(1)
+
+          true ->
+            snake
         end
       end
     end)
@@ -195,7 +201,7 @@ defmodule Bs.World do
   def grew(world, snake) do
     head = hd(snake.coords)
 
-    if head in world.food || world.pin_tail do
+    if head in world.food do
       1
     else
       0
