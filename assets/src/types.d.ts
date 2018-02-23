@@ -11,7 +11,7 @@ declare module "elm/Game" {
     render: Elm.Port<(raw: { content: GameState }) => void>;
   }
 
-  export const Game: Elm.App<Ports, { websocket: string }>;
+  export const Game: Elm.App<Ports, { websocket: string; gameid: string }>;
 }
 
 declare namespace Elm {
