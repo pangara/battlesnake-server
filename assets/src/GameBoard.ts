@@ -178,41 +178,15 @@ interface Layers {
 
 export class GameBoard {
   private readonly layers: Layers;
-  private readonly canvasses: HTMLCanvasElement[];
   private readonly images = new Map();
   private readonly colorPallet: Map<string, string>;
   private worldId: string;
 
   constructor(node: HTMLElement, colorPallet: Map<string, string>) {
-    this.canvasses = [];
-
-    const layer = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = (canvas.getContext("2d") as any) as Ctx;
-      canvas.classList.add("gameboard-canvas");
-      this.canvasses.push(canvas);
-      return ctx;
-    };
-
-    this.layers = {
-      fg: layer(),
-      grid: layer()
-    };
-
-    Object.values(this.layers)
-      .reverse()
-      .map(({ canvas }, idx) => {
-        canvas.style.zIndex = idx;
-      });
-
     this.colorPallet = colorPallet;
 
     for (const child of node.childNodes) {
       node.removeChild(child);
-    }
-
-    for (const canvas of this.canvasses) {
-      node.appendChild(canvas);
     }
 
     this.resize();
@@ -223,18 +197,19 @@ export class GameBoard {
   }
 
   resize() {
-    for (const canvas of this.canvasses) {
-      canvas.width = canvas.clientWidth;
-      canvas.height = canvas.clientHeight;
-    }
+    // for (const canvas of this.canvasses) {
+    //   canvas.width = canvas.clientWidth;
+    //   canvas.height = canvas.clientHeight;
+    // }
   }
 
   sizeChanged(): boolean {
-    const canvas = this.canvasses[0];
-    return (
-      canvas.width !== canvas.clientWidth ||
-      canvas.height !== canvas.clientHeight
-    );
+    // const canvas = this.canvasses[0];
+    // return (
+    //   canvas.width !== canvas.clientWidth ||
+    //   canvas.height !== canvas.clientHeight
+    // );
+    return true;
   }
 
   async getImage(id: string, color: string): Promise<Image> {

@@ -1,10 +1,13 @@
 module Game.View exposing (..)
 
+import Theme exposing (..)
+import Scale exposing (..)
 import Css exposing (..)
 import Game.Types exposing (..)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as Attr exposing (..)
 import Html.Styled.Events exposing (..)
+import Game.BoardView
 import Md exposing (..)
 import Route exposing (..)
 import Types exposing (..)
@@ -102,25 +105,30 @@ view model =
         [ viewPort []
             [ column
                 [ css [ flex auto ] ]
-                [ board model
-                , div [ css [ alignSelf center ] ] [ text (turn model) ]
-                , avControls []
-                    [ btn
-                        [ onClick (Push PrevStep)
-                        , title "Previous turn (k)"
+                [ model.gameState
+                    |> Maybe.map .board
+                    |> Maybe.map (Game.BoardView.view False)
+                    |> Maybe.withDefault (text "")
+                , column [ css [ flexGrow (int 0) ] ]
+                    [ div [ css [ alignSelf center ] ] [ text (turn model) ]
+                    , avControls []
+                        [ btn
+                            [ onClick (Push PrevStep)
+                            , title "Previous turn (k)"
+                            ]
+                            [ mdSkipPrev ]
+                        , btn
+                            [ onClick (Push StopGame)
+                            , title "Reset Game (q)"
+                            ]
+                            [ mdReplay ]
+                        , playPause model
+                        , btn
+                            [ onClick (Push NextStep)
+                            , title "Next turn (j)"
+                            ]
+                            [ mdSkipNext ]
                         ]
-                        [ mdSkipPrev ]
-                    , btn
-                        [ onClick (Push StopGame)
-                        , title "Reset Game (q)"
-                        ]
-                        [ mdReplay ]
-                    , playPause model
-                    , btn
-                        [ onClick (Push NextStep)
-                        , title "Next turn (j)"
-                        ]
-                        [ mdSkipNext ]
                     ]
                 ]
             , sidebar model
@@ -189,6 +197,7 @@ sidebar model =
 snake : Bool -> Snake -> Html msg
 snake alive snake =
     let
+        _ = Debug.log "snake" snake
         healthbarWidth =
             if alive then
                 (toString snake.health) ++ "%"

@@ -1,8 +1,10 @@
 module Decoder exposing (..)
 
 import Json.Decode exposing (..)
+import Json.Decode.Pipeline exposing (..)
 import Types exposing (..)
 import Dict
+import Math.Vector2 exposing (..)
 
 
 (:=) : String -> Decoder a -> Decoder a
@@ -19,6 +21,17 @@ defaultHeadUrl : String
 defaultHeadUrl =
     ""
 
+defaultHeadType : String
+defaultHeadType = 
+    ""
+
+defaultTailType : String
+defaultTailType = 
+    ""
+
+defaultDeath : Death
+defaultDeath = 
+    { causes = [] }
 
 maybeWithDefault : a -> Decoder a -> Decoder a
 maybeWithDefault value decoder =
@@ -64,13 +77,20 @@ gameState =
 
 board : Decoder Board
 board =
-    map5 Board
+    map7 Board
         ("turn" := int)
         ("snakes" := list snake)
         ("deadSnakes" := list snake)
         ("gameId" := int)
-        ("food" := list point)
+        ("food" := list decodeVec2)
+        ("width" := int)
+        ("height" := int)
 
+decodeVec2 : Decoder Vec2
+decodeVec2 = 
+    map2 vec2
+        (index 0 float)
+        (index 1 float)
 
 point : Decoder Point
 point =
@@ -94,28 +114,60 @@ death =
 
 snake : Decoder Snake
 snake =
-    map8 Snake
-        (maybe <| "death" := death)
-        ("color" := string)
-        ("coords" := list point)
-        ("health" := int)
-        ("id" := string)
-        ("name" := string)
-        (maybe <| "taunt" := string)
-        (maybeWithDefault defaultHeadUrl <| "headUrl" := string)
+    decode Snake
+        |> hardcoded Nothing
+        |> required "color" string
+        |> required "coords" (list decodeVec2)
+        |> required "health" int
+        |> required "id" string
+        |> required "name" string
+        |> required "taunt" (maybe string)
+        |> (string
+                |> maybe
+                |> map (Maybe.withDefault "")
+                |> required "headUrl"
+           )
+        |> required "headType" string
+        |> required "tailType" string
+    -- map10 Snake
+    --     (maybe <| "death" := death)
+    --     ("color" := string)
+    --     ("coords" := list decodeVec2)
+    --     ("health" := int)
+    --     ("id" := string)
+    --     ("name" := string)
+    --     (maybe <| "taunt" := string)
+    --     (maybeWithDefault defaultHeadUrl <| "headUrl" := string)
+    --     (maybeWithDefault defaultHeadType <| "headType" := string)
+    --     (maybeWithDefault defaultTailType <| "tailType" := string)
 
 
 snake2 : Decoder Snake
 snake2 =
-    map8 Snake
-        (maybe <| "death" := death)
-        ("color" := string)
-        (at [ "body", "data" ] (list point2))
-        ("health" := int)
-        ("id" := string)
-        ("name" := string)
-        (maybe <| "taunt" := string)
-        (maybeWithDefault defaultHeadUrl <| "headUrl" := string)
+    decode Snake
+        |> hardcoded Nothing
+        |> required "color" string
+        |> required "coords" (list decodeVec2)
+        |> required "health" int
+        |> required "id" string
+        |> required "name" string
+        |> required "taunt" (maybe string)
+        |> (string
+                |> maybe
+                |> map (Maybe.withDefault "")
+                |> required "headUrl"
+           )
+        |> required "headType" string
+        |> required "tailType" string
+    -- map8 Snake
+    --     (maybe <| "death" := death)
+    --     ("color" := string)
+    --     (at [ "body", "data" ] (list decodeVec2))
+    --     ("health" := int)
+    --     ("id" := string)
+    --     ("name" := string)
+    --     (maybe <| "taunt" := string)
+    --     (maybeWithDefault defaultHeadUrl <| "headUrl" := string)
 
 
 permalink : Decoder Permalink

@@ -99,12 +99,15 @@ defmodule Bs.World.Factory do
         Enum.map(acc, &List.first(&1.coords))
       )
 
-    if world.pin_tail do
-      # only need head and tail when the tail is pinned.
-      coords = List.duplicate(point, 2)
-    else
-      coords = List.duplicate(point, game.snake_start_length)
-    end
+    coords =
+      case world.pin_tail do
+        # only need head and tail when the tail is pinned.
+        true ->
+          List.duplicate(point, 2)
+
+        false ->
+          List.duplicate(point, game.snake_start_length)
+      end
 
     head = Map.put(head, :coords, coords)
     set_snake_coords(tail, world, game, [head | acc])
