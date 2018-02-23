@@ -20,7 +20,7 @@ type alias GameState =
 type alias Board =
     { turn : Int
     , snakes : List Snake
-    , deadSnakes : List DeadSnake
+    , deadSnakes : List Snake
     , gameid : Int
     , food : List Vec2
     , width : Int
@@ -79,20 +79,7 @@ type SnakeStatus
 
 
 type alias Snake =
-    { color : String
-    , coords : List Vec2
-    , health : Int
-    , id : String
-    , name : String
-    , taunt : Maybe String
-    , headUrl : String
-    , headType : String
-    , tailType : String
-    }
-
-
-type alias DeadSnake =
-    { death : Death
+    { death : Maybe Death
     , color : String
     , coords : List Vec2
     , health : Int

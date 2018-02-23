@@ -69,12 +69,9 @@ circle_ attrs v =
         []
 
 
-view : Bool -> Board -> Html.Styled.Html msg
-view showDead board =
+view : Board -> Html.Styled.Html msg
+view board =
     let
-        snakeView_ =
-            snakeView showDead board.deadSnakes
-
         food =
             board.food
 
@@ -129,7 +126,7 @@ view showDead board =
             , css [ Css.fill theme.food ]
             ]
             (List.map (circle_ []) food)
-        , g [] (List.concatMap snakeView_ snakes)
+        , g [] (List.concatMap snakeView (snakes ++ deadSnakes))
         ]
 
 
@@ -161,33 +158,28 @@ alignWithMargin { dir } vec =
         |> add vec
 
 
-getSnakeId : DeadSnake -> String
-getSnakeId ds =
-    ds.id
-
-
-snakeView : Bool -> List DeadSnake -> Snake -> List (Svg msg)
-snakeView showDead deadSnakes record =
+snakeView : Snake -> List (Svg msg)
+snakeView record =
     let
-        shouldRender =
-            alive || showDead
-
-        deadSnakeIds =
-            List.map getSnakeId deadSnakes
-
-        snakeId =
-            record.id
-
         alive =
-            not
-                (List.member
-                    snakeId
-                    deadSnakeIds
-                )
+            case record.death of
+                Nothing ->
+                    True
+
+                Just _ ->
+                    False
 
         coords =
             record.coords
                 |> List.foldl reduce AccInit
+
+        opacityValue =
+            case record.death of
+                Nothing ->
+                    "1.0"
+
+                Just _ ->
+                    "0.25"
 
         reduce : Vec2 -> Acc -> Acc
         reduce current acc =
@@ -280,6 +272,7 @@ snakeView showDead deadSnakes record =
                         , x "0"
                         , y "0"
                         , css [ Css.property "fill" record.color ]
+                        , opacity opacityValue
                         ]
                         []
                     ]
@@ -298,17 +291,15 @@ snakeView showDead deadSnakes record =
                     , end |> embed "" "tail" record.tailType
                     ]
     in
-    if shouldRender then
-        [ g
-            [ vec2 gridPathOffset gridPathOffset
-                |> translate
-                |> transform
-            ]
-            [ polyline_ ]
+    [ g
+        [ vec2 gridPathOffset gridPathOffset
+            |> translate
+            |> transform
+        , opacity opacityValue
         ]
-            ++ icons
-    else
-        []
+        [ polyline_ ]
+    ]
+        ++ icons
 
 
 rotate : a -> String

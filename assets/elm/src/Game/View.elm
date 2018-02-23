@@ -21,7 +21,7 @@ view model =
                 [ css [ flex auto ] ]
                 [ model.gameState
                     |> Maybe.map .board
-                    |> Maybe.map (Game.BoardView.view False)
+                    |> Maybe.map Game.BoardView.view
                     |> Maybe.withDefault (text "")
                 , column [ css [ flexGrow (int 0) ] ]
                     [ div [ css [ alignSelf center ] ] [ text (turn model) ]
@@ -60,25 +60,6 @@ board { gameid } =
         ]
         [ div [ id gameid ] []
         ]
-
-
-toSnakes : List DeadSnake -> List Snake
-toSnakes deadSnakes =
-    List.map toSnake deadSnakes
-
-
-toSnake : DeadSnake -> Snake
-toSnake deadSnake =
-    { color = deadSnake.color
-    , coords = deadSnake.coords
-    , health = deadSnake.health
-    , id = deadSnake.id
-    , name = deadSnake.name
-    , taunt = deadSnake.taunt
-    , headUrl = deadSnake.headUrl
-    , headType = deadSnake.headType
-    , tailType = deadSnake.tailType
-    }
 
 
 sidebar : Model -> Html Msg
@@ -123,7 +104,7 @@ sidebar model =
                     container []
                         (List.concat
                             [ List.map (snake True) board.snakes
-                            , List.map (snake False) (toSnakes board.deadSnakes)
+                            , List.map (snake False) board.deadSnakes
                             ]
                         )
     in

@@ -17,26 +17,6 @@ import Types exposing (..)
     at
 
 
-defaultHeadUrl : String
-defaultHeadUrl =
-    ""
-
-
-defaultHeadType : String
-defaultHeadType =
-    ""
-
-
-defaultTailType : String
-defaultTailType =
-    ""
-
-
-defaultDeath : Death
-defaultDeath =
-    { causes = [] }
-
-
 maybeWithDefault : a -> Decoder a -> Decoder a
 maybeWithDefault value decoder =
     decoder |> maybe |> map (Maybe.withDefault value)
@@ -84,7 +64,7 @@ boardDecoder =
     map7 Board
         ("turn" := int)
         ("snakes" := list snakeDecoder)
-        ("deadSnakes" := list deadSnakeDecoder)
+        ("deadSnakes" := list snakeDecoder)
         ("gameId" := int)
         ("food" := list vec2Decoder)
         ("width" := int)
@@ -121,6 +101,7 @@ deathDecoder =
 snakeDecoder : Decoder Snake
 snakeDecoder =
     decode Snake
+        |> optional "death" (nullable deathDecoder) Nothing
         |> required "color" string
         |> required "coords" (list vec2Decoder)
         |> required "health" int
@@ -132,21 +113,6 @@ snakeDecoder =
                 |> map (Maybe.withDefault "")
                 |> required "headUrl"
            )
-        |> required "headType" string
-        |> required "tailType" string
-
-
-deadSnakeDecoder : Decoder DeadSnake
-deadSnakeDecoder =
-    decode DeadSnake
-        |> optional "death" deathDecoder defaultDeath
-        |> required "color" string
-        |> required "coords" (list vec2Decoder)
-        |> required "health" int
-        |> required "id" string
-        |> required "name" string
-        |> required "taunt" (maybe string)
-        |> optional "headUrl" string ""
         |> required "headType" string
         |> required "tailType" string
 
@@ -204,7 +170,7 @@ lobbySnake =
                 ("name" := string)
                 ("taunt" := maybe string)
                 ("url" := string)
-                (maybeWithDefault defaultHeadUrl <| "headUrl" := string)
+                (maybeWithDefault "" <| "headUrl" := string)
     in
     snakeEvent (field "data" data)
 
