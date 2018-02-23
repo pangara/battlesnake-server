@@ -64,19 +64,22 @@ defmodule Bs.Test do
       ])
   )
 
-  @doc ~S"Run a scenario, returns ok if it passes, or a test case error."
+  @doc """
+  Run a scenario, returns ok if it passes, or a test case error.
+  """
   def test(scenario, url) do
     scenario = generate_ids(scenario)
 
     {world, player} = Scenario.to_world(scenario)
 
+    json =
+      %{game_id: world.id, width: world.width, height: world.height}
+      |> Poison.encode!()
+
     player =
       %{player | url: url}
-      |> Bs.World.Factory.Worker.run(world.id)
+      |> Bs.World.Factory.Worker.run(json)
       |> Map.put(:coords, player.coords)
-
-    # snake = Map.take(snake, [:color, :head_type, :tail_type, :name])
-    # player = Map.merge(player, snake)
 
     move = Worker.run(player, world, recv_timeout: 5000)
 
@@ -180,10 +183,19 @@ defmodule Bs.Test do
     model
   end
 
-  defp generate_ids(model) when is_map(model) do
+  defp generate_ids(%mod{} = model) when is_map(model) do
     model =
-      if Map.has_key?(model, :id) do
-        %{model | id: Ecto.UUID.generate()}
+      if function_exported?(mod, :__schema__, 2) do
+        case mod.__schema__(:type, :id) do
+          :binary_id ->
+            %{model | id: Ecto.UUID.generate()}
+
+          :id ->
+            %{model | id: :rand.uniform(999_999_999)}
+
+          nil ->
+            model
+        end
       else
         model
       end

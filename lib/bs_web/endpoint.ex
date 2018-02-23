@@ -51,6 +51,6 @@ defmodule BsWeb.Endpoint do
   plug(BsWeb.Router)
 
   def init(_type, config) do
-    {:ok, config} = Confex.Resolver.resolve(config)
+    Confex.Resolver.resolve(config)
   end
 end

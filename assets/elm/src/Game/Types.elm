@@ -4,12 +4,14 @@ import Phoenix.Socket
 import Json.Encode exposing (Value)
 import Keyboard exposing (KeyCode)
 import Types exposing (..)
+import Time exposing (Time)
 
 
 type alias Model =
     { socket : Phoenix.Socket.Socket Msg
     , gameid : String
     , gameState : Maybe GameState
+    , board : Maybe Board
     }
 
 
@@ -27,6 +29,7 @@ type Msg
     | PhxMsg PhxSockMsg
     | Broadcast BroadcastMsg
     | Push PushMsg
+    | Tick Time
 
 
 type PushMsg
@@ -48,10 +51,3 @@ type alias PhxSock =
 
 type alias PhxSockMsg =
     Phoenix.Socket.Msg Msg
-
-
-type Phase
-    = InitPhase
-    | LobbyPhase Lobby
-    | GamePhase GameState
-    | ResultPhase

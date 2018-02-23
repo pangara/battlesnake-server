@@ -1,12 +1,16 @@
 alias Bs.Snake
 alias Bs.World
-alias Bs.Notification
 alias Bs.World.Factory.Worker
 
 defmodule Bs.World.Factory do
   @timeout 4900
+  @sup_options [on_timeout: :kill_task, timeout: @timeout]
 
   def build(%{id: id} = game) when not is_nil(id) do
+    {:ok, supervisor} = Task.Supervisor.start_link(@sup_options)
+
+    configs = game.snakes
+
     world = %World{
       id: Ecto.UUID.generate(),
       game_id: id,
@@ -15,143 +19,64 @@ defmodule Bs.World.Factory do
       snakes: [],
       width: game.width,
       game_form_id: id,
-      dec_health_points: game.dec_health_points,
-      pin_tail: game.pin_tail
+      dec_health_points: game.dec_health_points
     }
 
-    data =
-      Poison.encode!(%{
-        game_id: id,
-        height: game.height,
-        width: game.width
-      })
+    request_json =
+      %{game_id: id, height: game.height, width: game.width}
+      |> Poison.encode!()
 
-    permalinks = game.snakes
+    sup_args = [request_json]
 
-    Notification.broadcast!(
-      id,
-      name: "restart:init",
-      rel: %{game_id: id},
-      view: "permalinks.json",
-      data: [permalinks: permalinks]
-    )
-
-    {:ok, supervisor} =
-      Task.Supervisor.start_link(on_timeout: :kill_task, timeout: @timeout)
-
-    stream =
-      Task.Supervisor.async_stream_nolink(
-        supervisor,
-        permalinks,
-        Worker,
-        :run,
-        [id, data]
-      )
-
-    snakes =
-      stream
-      |> Stream.zip(permalinks)
-      |> Stream.flat_map(fn
-        {{:ok, snake}, _} ->
-          Notification.broadcast!(
-            id,
-            name: "restart:request:ok",
-            rel: %{game_id: id, snake_id: snake.id},
-            view: "snake_loaded.json",
-            data: [snake: snake]
-          )
-
-          [snake]
-
-        {{:exit, {error, _stack}}, permalink} ->
-          Notification.broadcast!(
-            id,
-            name: "restart:request:error",
-            rel: %{game_id: id, snake_id: permalink.id},
-            view: "error.json",
-            data: [error: error]
-          )
-
-          []
-      end)
+    {alive_snakes, dead_snakes} =
+      supervisor
+      |> Task.Supervisor.async_stream_nolink(configs, Worker, :run, sup_args)
+      |> Stream.zip(configs)
+      |> Stream.flat_map(&process_snake/1)
       |> Enum.to_list()
+      |> Enum.split_with(&Snake.alive?/1)
 
-    Notification.broadcast!(
-      id,
-      name: "restart:finished",
-      rel: %{game_id: id},
-      data: %{}
-    )
+    world = put_in(world.snakes, alive_snakes)
+    world = put_in(world.dead_snakes, dead_snakes)
 
     world = World.stock_food(world)
-    put_in(world.snakes, set_snake_coords(snakes, world, game))
+
+    update_in(world.snakes, fn snakes ->
+      for snake <- snakes do
+        {:ok, point} = World.rand_unoccupied_space(world)
+
+        coords = List.duplicate(point, game.snake_start_length)
+
+        put_in(snake.coords, coords)
+      end
+    end)
   end
 
-  defp set_snake_coords(snakes, world, game) do
-    set_snake_coords(snakes, world, game, [])
-  end
+  defp process_snake(result) do
+    case result do
+      {{:ok, snake}, _} ->
+        snake
+        |> Snake.alive!()
+        |> List.wrap()
 
-  defp set_snake_coords([head | tail], world, game, acc) do
-    {:ok, point} =
-      World.rand_unoccupied_space(
-        world,
-        1,
-        Enum.map(acc, &List.first(&1.coords))
-      )
-
-    if world.pin_tail do
-      # only need head and tail when the tail is pinned.
-      coords = List.duplicate(point, 2)
-    else
-      coords = List.duplicate(point, game.snake_start_length)
+      {{:exit, {_error, _stack}}, config} ->
+        %Snake{url: config.url, name: config.url, id: config.id}
+        |> Snake.connection_failure!()
+        |> List.wrap()
     end
-
-    head = Map.put(head, :coords, coords)
-    set_snake_coords(tail, world, game, [head | acc])
-  end
-
-  defp set_snake_coords([], _, _, acc) do
-    acc
   end
 end
 
 defmodule Bs.World.Factory.Worker do
-  @http Application.get_env(:bs, :http)
+  @api Application.get_env(:bs, :api)
   @timeout 4500
 
-  def run(permalink, gameid, opts \\ [])
-
-  def run(%{id: id, url: url, name: name}, gameid, data) do
-    start_url = "#{url}/start"
-
-    {tc, response} =
-      :timer.tc(@http, :post!, [
-        start_url,
-        data,
-        ["content-type": "application/json"],
-        [recv_timeout: @timeout]
-      ])
-
-    Notification.broadcast!(
-      gameid,
-      name: "restart:request",
-      rel: %{game_id: gameid, snake_id: id},
-      view: "response.json",
-      data: [
-        response: response,
-        tc: tc
-      ]
-    )
-
-    json =
-      case Poison.decode(response.body) do
-        {:ok, j} -> j
-        {:error, _, _} -> %{}
-      end
-
-    model = %Snake{url: String.trim(url, "/"), id: id, name: name}
-
-    changeset = Snake.changeset(model, json)
+  def run(%{id: id, url: url}, json) when is_binary(json) do
+    model = %Snake{url: url, id: id}
+    options = [recv_timeout: @timeout]
+    response = @api.start(url, json, options)
+    responseJson = Poison.decode!(response.body)
+    changeset = Snake.changeset(model, responseJson)
 
     if changeset.valid? do
       Ecto.Changeset.apply_changes(changeset)

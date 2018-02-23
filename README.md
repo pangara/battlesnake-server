@@ -1,4 +1,4 @@
-# The 2018 Official Game Server [![CircleCI](https://circleci.com/gh/sendwithus/battlesnake-server.svg?style=svg)](https://circleci.com/gh/sendwithus/battlesnake-server)
+# The 2018 Official Game Server
 
 [![BattleSnake 2018 Logo](./docs/images/logo-18.png)](https://www.battlesnake.io/)
 
@@ -80,10 +80,9 @@ random, unoccupied location on the next turn.
 
 #### Don't Starve
 
-Every turn snakes will loose one health-point. In BattleSnake health-points
-serve like the snake's hunger bar, and if it reaches zero, the snake will starve
-and die. Eating food will restore snake's health to one-hundred points on the
-next turn.
+Every turn snakes will loose one health-point. Health-points serve like the
+snake's hunger bar, and if it reaches zero, the snake will starve and die.
+Eating food will restore snake's health to one-hundred points on the next turn.
 
 ![Snake dying of starvation](./docs/images/rule-starvation.gif)
 
@@ -466,6 +465,8 @@ yarn install
 
 mix phx.server
 ```
+
+You can now access the game server at <http://localhost:3000>
 
 ## Testing
 

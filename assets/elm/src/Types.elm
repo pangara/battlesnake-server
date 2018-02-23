@@ -1,7 +1,7 @@
 module Types exposing (..)
 
-import Dict exposing (..)
 import Json.Encode exposing (Value)
+import Math.Vector2 exposing (..)
 
 
 type Status
@@ -19,44 +19,10 @@ type alias GameState =
 type alias Board =
     { turn : Int
     , snakes : List Snake
-    , deadSnakes : List Snake
     , gameid : Int
-    , food : List Point
-    }
-
-
-type alias Database a =
-    Dict String a
-
-
-type alias Lobby =
-    { snakes : Database Permalink }
-
-
-type RequestState
-    = Loading
-    | Ready LobbySnake
-    | Failed String
-
-
-type alias Permalink =
-    { id : String
-    , url : String
-    , loadingState : RequestState
-    }
-
-
-type Point
-    = Point Int Int
-
-
-type alias LobbySnake =
-    { color : String
-    , id : String
-    , name : String
-    , taunt : Maybe String
-    , url : String
-    , headUrl : String
+    , food : List Vec2
+    , width : Int
+    , height : Int
     }
 
 
@@ -69,15 +35,24 @@ type alias Death =
     }
 
 
+type SnakeStatus
+    = Alive
+    | Dead
+    | ConnectionFailure
+
+
 type alias Snake =
     { death : Maybe Death
     , color : String
-    , coords : List Point
+    , coords : List Vec2
     , health : Int
     , id : String
     , name : String
     , taunt : Maybe String
     , headUrl : String
+    , status : SnakeStatus
+    , headType : String
+    , tailType : String
     }
 
 
@@ -142,5 +117,5 @@ type alias AssertionError =
     , reason : String
     , scenario : Scenario
     , player : Snake
-    , world : Value
+    , board : Board
     }
