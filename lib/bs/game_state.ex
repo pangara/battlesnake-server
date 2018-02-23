@@ -147,7 +147,6 @@ defmodule Bs.GameState do
         :error -> @default_max_history
       end
 
-    IO.inspect(max_history)
     update_in(state.hist, fn t -> [h | Enum.take(t, max_history)] end)
   end
 
