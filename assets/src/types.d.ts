@@ -33,15 +33,6 @@ type Point = [number, number];
 
 type Food = Point;
 
-type Ctx = CanvasRenderingContext2D & {
-  filter: string;
-  currentTransform: SVGMatrix;
-};
-
-type Image = HTMLImageElement;
-
-type List<T> = { length: number; item: (i: number) => T };
-
 interface Snake {
   taunt?: any;
   name: string;
@@ -67,8 +58,4 @@ interface Board {
   snakes: Snake[];
   turn: number;
   width: number;
-}
-
-interface TickResponse {
-  content: Board;
 }

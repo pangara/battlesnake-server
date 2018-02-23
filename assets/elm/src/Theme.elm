@@ -28,6 +28,7 @@ theme =
     , bgSecondary = pallet.white
     , buttonAccent = pallet.lightgrey
     , sidebarPlayerHeight = ms 3
+    , sidebarWidth = (px 320)
     , tile = pallet.lightgrey
     , food = pallet.pink
     }
