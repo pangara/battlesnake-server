@@ -4,7 +4,7 @@ import Css exposing (..)
 
 assets : { logoAdvanced : String, logoLight : String }
 assets =
-    { logoAdvanced = "/images/division-advanced.svg"
+    { logoAdvanced = "/images/bracket-expert.png"
     , logoLight = "/images/bs-logo-light.svg"
     }
 
@@ -15,11 +15,12 @@ pallet =
     , yellow = hex "#fffae3"
     , blue = hex "#99e1d9"
     , grey = hex "#5d576b"
+    , purple = hex "#3d005c"
     }
 
 
 theme =
-    { bgPrimary = pallet.grey
+    { bgPrimary = pallet.purple
     , bgSecondary = pallet.white
     , buttonAccent = pallet.lightgrey
     , tile = pallet.lightgrey

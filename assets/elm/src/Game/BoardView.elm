@@ -95,7 +95,7 @@ view showDead board =
                 |> List.map toString
                 |> String.join " "
     in
-        svg [ viewBox viewBox_, css [ 1 |> Css.int |> Css.flexGrow, Css.padding ms1 ] ]
+        svg [ viewBox viewBox_, css [ 1 |> Css.int |> Css.flexGrow, Css.padding ms1 ]]
             [ defs []
                 [ pattern
                     [ id gridPattern
