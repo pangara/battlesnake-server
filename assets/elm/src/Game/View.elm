@@ -176,22 +176,22 @@ sidebar model =
                             ]
                         )
     in
-        column
-            [ css
-                [ padding ms1
-                , justifyContent spaceBetween
-                , minWidth (px 300)
-                , overflowWrap breakWord
-                , sidebarTheme
-                ]
+    column
+        [ css
+            [ padding ms1
+            , justifyContent spaceBetween
+            , minWidth (px 300)
+            , overflowWrap breakWord
+            , sidebarTheme
             ]
-            [ sidebarLogo
-            , content
-            , sidebarControls []
-                [ a [ href <| editGamePath model.gameid ] [ text "Edit" ]
-                , a [ href <| gamesPath ] [ text "Games" ]
-                ]
+        ]
+        [ sidebarLogo
+        , content
+        , sidebarControls []
+            [ a [ href <| editGamePath model.gameid ] [ text "Edit" ]
+            , a [ href <| gamesPath ] [ text "Games" ]
             ]
+        ]
 
 
 snake : Bool -> Snake -> Html msg
@@ -200,7 +200,7 @@ snake alive snake =
         _ = Debug.log "snake" snake
         healthbarWidth =
             if alive then
-                (toString snake.health) ++ "%"
+                toString snake.health ++ "%"
             else
                 "0%"
 
@@ -222,13 +222,13 @@ snake alive snake =
         healthbar =
             div
                 [ style healthbarStyle
-                , css [ Css.height (ms_3), transition ]
+                , css [ Css.height ms_3, transition ]
                 ]
                 []
 
         healthText =
             if alive then
-                (toString snake.health)
+                toString snake.health
             else
                 "Dead"
 
@@ -237,26 +237,45 @@ snake alive snake =
                 1
             else
                 0.5
+
+        taunt =
+            case snake.taunt of
+                Nothing ->
+                    ""
+
+                Just val ->
+                    val
     in
-        div
+    div
+        [ css
+            [ marginBottom ms0
+            , opacity (num containerOpacity)
+            ]
+        ]
+        [ flag (avatar [ src snake.headUrl ] [])
+            [ div
+                [ css
+                    [ displayFlex
+                    , justifyContent spaceBetween
+                    ]
+                ]
+                [ span [] [ text snake.name ]
+                , span [] [ text healthText ]
+                ]
+            , healthbar
+            ]
+        , div
             [ css
-                [ marginBottom ms0
-                , opacity (num containerOpacity)
+                [ displayFlex
+                , justifyContent spaceBetween
+                , maxWidth (px 250)
+                , Css.height (px 20)
+                , textOverflow ellipsis
+                , overflow Css.hidden
                 ]
             ]
-            [ flag (avatar [ src snake.headUrl ] [])
-                [ div
-                    [ css
-                        [ displayFlex
-                        , justifyContent spaceBetween
-                        ]
-                    ]
-                    [ span [] [ text snake.name ]
-                    , span [] [ text healthText ]
-                    ]
-                , healthbar
-                ]
-            ]
+            [ text taunt ]
+        ]
 
 
 playPause : Model -> Html Msg
@@ -265,28 +284,28 @@ playPause { gameState } =
         gameEnded =
             btn [ title "Game ended", Attr.disabled True ] [ mdStop ]
     in
-        case gameState of
-            Nothing ->
-                gameEnded
+    case gameState of
+        Nothing ->
+            gameEnded
 
-            Just { status } ->
-                case status of
-                    Halted ->
-                        gameEnded
+        Just { status } ->
+            case status of
+                Halted ->
+                    gameEnded
 
-                    Suspended ->
-                        btn
-                            [ onClick (Push ResumeGame)
-                            , title "Resume game (h)"
-                            ]
-                            [ mdPlayArrow ]
+                Suspended ->
+                    btn
+                        [ onClick (Push ResumeGame)
+                        , title "Resume game (h)"
+                        ]
+                        [ mdPlayArrow ]
 
-                    Cont ->
-                        btn
-                            [ onClick (Push PauseGame)
-                            , title "Pause game (l)"
-                            ]
-                            [ mdPause ]
+                Cont ->
+                    btn
+                        [ onClick (Push PauseGame)
+                        , title "Pause game (l)"
+                        ]
+                        [ mdPause ]
 
 
 column : List (Attribute msg) -> List (Html msg) -> Html msg
