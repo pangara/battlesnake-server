@@ -173,23 +173,16 @@ snakeView showDead deadSnakes record =
             alive || showDead
 
         deadSnakeIds =
-            Debug.log
-                "dead snakes"
-                (List.map getSnakeId deadSnakes)
+            List.map getSnakeId deadSnakes
 
         snakeId =
-            Debug.log "record id" record.id
-
-        r =
-            Debug.log "record" record
+            record.id
 
         alive =
-            Debug.log "alive"
-                (not
-                    (List.member
-                        snakeId
-                        deadSnakeIds
-                    )
+            not
+                (List.member
+                    snakeId
+                    deadSnakeIds
                 )
 
         coords =
